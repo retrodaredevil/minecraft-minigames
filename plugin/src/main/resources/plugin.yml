@@ -1,0 +1,7 @@
+name: Minigames
+main: me.retrodaredevil.minecraft.minigame.MinigameMain
+version: 1.0
+description: Minigames plugin
+authors: [retrodaredevil]
+depend: []
+api-version: 1.13

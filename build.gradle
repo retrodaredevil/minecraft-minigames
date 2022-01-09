@@ -1,0 +1,56 @@
+
+
+buildscript {
+    ext {
+        kotlinVersion = '1.6.10' // https://github.com/JetBrains/kotlin/releases/latest
+        junit5Version = "5.8.2" // https://junit.org/junit5/
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "$kotlinVersion" apply false
+}
+
+group = "me.retrodaredevil.minecraft.minigames"
+version = "1.0-SNAPSHOT"
+
+subprojects {
+    apply plugin: "kotlin"
+
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+        }
+//        maven { url 'https://www.jitpack.io' }
+    }
+
+    dependencies {
+        implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        testImplementation "org.junit.jupiter:junit-jupiter-engine:$junit5Version"
+        testImplementation "org.junit.jupiter:junit-jupiter-api:$junit5Version"
+    }
+    test {
+        useJUnitPlatform()
+    }
+    compileKotlin {
+        kotlinOptions {
+            languageVersion = "1.6"
+            jvmTarget = "16"
+            // jsr305 gives nullable/nonnull support for Java code annotated with javax stuff
+            freeCompilerArgs += ["-Xjsr305=strict"]
+        }
+    }
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+}

@@ -1,0 +1,15 @@
+apply plugin: "kotlin"
+
+dependencies {
+    implementation project(":chess")
+//    implementation "org.jetbrains.kotlin:kotlin-runtime:$kotlinVersion"
+    compileOnly "org.spigotmc:spigot-api:1.17.1-R0.1-SNAPSHOT"
+}
+
+task fatJar(type: Jar) {
+//    manifest {
+//    }
+    baseName = project.name
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
