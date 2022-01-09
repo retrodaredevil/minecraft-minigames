@@ -12,6 +12,7 @@ class ChessGame {
         turn = turn.opposite
     }
     fun getResult(): Result? {
+        println("turn: $turn")
         val kingsInCheck = state.getKingsInCheck()
         check(turn.opposite !in kingsInCheck) { "The king in check cannot be the other color! kingsInCheck: $kingsInCheck turn: $turn" }
 

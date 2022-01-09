@@ -7,6 +7,7 @@ import me.retrodaredevil.minecraft.minigame.chess.ChessPlacer
 import me.retrodaredevil.minecraft.minigame.chess.MinecraftChessPlayer
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.attribute.Attribute
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -21,10 +22,15 @@ class BoardSelectListener(
         private val boardManager: BoardManager,
 ) : Listener {
 
+    private var waitingPlayer: Player? = null
+
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
-        event.player.sendMessage("Heyo there");
-        event.player.allowFlight = true
+        val player = event.player
+        player.sendMessage("Heyo there");
+        player.allowFlight = true
+        player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
+        player.foodLevel = 20
     }
     @EventHandler
     fun onHealthChange(event: EntityDamageEvent) {
@@ -40,8 +46,10 @@ class BoardSelectListener(
 
     @EventHandler
     fun onBlockBreak(event: BlockBreakEvent) {
+        println("Block break by player: ${event.player}")
         if (event.player.gameMode == GameMode.CREATIVE) {
             val result = onPlayerSelectBlock(event.block, event.player)
+            println("result: $result")
             if (result) {
                 event.isCancelled = true
             }
@@ -49,8 +57,10 @@ class BoardSelectListener(
     }
     @EventHandler
     fun onBlockBreakStart(event: BlockDamageEvent) {
+        println("Block break start by player: ${event.player}")
         if (event.player.gameMode != GameMode.CREATIVE) {
             val result = onPlayerSelectBlock(event.block, event.player)
+            println("result: $result")
             if (result) {
                 event.isCancelled = true
             }
@@ -62,21 +72,34 @@ class BoardSelectListener(
      */
     private fun onPlayerSelectBlock(block: Block, player: Player): Boolean {
         val (worldBoard, position) = boardManager.getPosition(block) ?: return false
+        println("position: $position")
         val chessGame = boardManager.getChessGame(worldBoard)
+        println("chessGame: $chessGame")
         if (chessGame == null) {
             if (player.gameMode == GameMode.CREATIVE) {
                 // Players in creative mode cannot start games by clicking on blocks
                 return false
             }
+            val waitingPlayer = this.waitingPlayer
+            if (waitingPlayer == null || !waitingPlayer.isOnline) {
+                this.waitingPlayer = player
+                player.sendMessage("You are now waiting")
+                return true
+            }
+            if (waitingPlayer.uniqueId == player.uniqueId) {
+                player.sendMessage("You are already waiting")
+                return true
+            }
             boardManager.startGame(
                     worldBoard,
-                    MinecraftChessPlayer(ChessColor.WHITE, player.uniqueId, player.name),
-                    AiChessPlayer(ChessColor.BLACK)
+                    MinecraftChessPlayer(ChessColor.WHITE, waitingPlayer),
+                    MinecraftChessPlayer(ChessColor.BLACK, player),
             )
-            player.sendMessage("You started a chess game with the computer! You are white.")
+            waitingPlayer.sendMessage("Game is starting with ${player.name}. You are white.")
+            player.sendMessage("Game is starting with $waitingPlayer. You are black")
             return true
         }
-        val chessPlayer = chessGame.players.filterIsInstance<MinecraftChessPlayer>().firstOrNull()
+        val chessPlayer = chessGame.players.filterIsInstance<MinecraftChessPlayer>().firstOrNull { it.playerUuid == player.uniqueId }
         if (chessPlayer != null) {
             chessPlayer.onPositionSelect(position, player, chessGame)
             return true

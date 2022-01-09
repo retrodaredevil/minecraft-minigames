@@ -12,9 +12,10 @@ import java.util.*
 
 class MinecraftChessPlayer(
         override val color: ChessColor,
-        private val playerUuid: UUID,
-        private val playerName: String,
+        player: Player,
 ) : ChessPlayer {
+    val playerUuid: UUID = player.uniqueId
+    private val playerName: String = player.name
     private var selectedPiece: ChessPiece? = null
 
     override fun onTurnStart(chessGame: MinecraftChessGame) {
@@ -45,10 +46,16 @@ class MinecraftChessPlayer(
     }
 
     fun onPositionSelect(position: Position, player: Player, chessGame: MinecraftChessGame) {
+        println("onPositionSelect!")
+        if (color != chessGame.game.turn) {
+            player.sendMessage("${ChatColor.AQUA}It is not your turn!!")
+            return
+        }
         val pieceRaw = chessGame.game.state.getPieceAt(position)
         val pieceToSelect = if (pieceRaw != null && pieceRaw.color == color) pieceRaw else null
         if (pieceToSelect != null) {
             selectedPiece = pieceToSelect
+            println("selected: $selectedPiece")
         } else {
             val selectedPiece = this.selectedPiece
             if (selectedPiece == null) {

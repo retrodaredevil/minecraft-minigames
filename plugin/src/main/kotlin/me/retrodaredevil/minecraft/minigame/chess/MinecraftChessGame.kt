@@ -31,12 +31,16 @@ class MinecraftChessGame(
     }
 
     fun move(move: ChessMove) {
+        check(move.piece.color == game.turn) { "It's not your turn!!! move: $move turn: ${game.turn}"}
         // TODO pawn promotion stuff
+        println("Turn before move: ${game.turn}")
         game.move(move, if (move.moveType == ChessMove.Type.PAWN_PROMOTION) PieceType.QUEEN else null)
-        println(game.state.getKingsInCheck())
+        println("Turn after move: ${game.turn}")
+        println("kings in check: ${game.state.getKingsInCheck()}")
 
         updateBoard()
         val result = game.getResult()
+        println("result: $result")
         if (result != null) {
             done = true
             players.forEach { it.onGameEnd(result) }
