@@ -1,7 +1,5 @@
 package me.retrodaredevil.board.chess
 
-import kotlin.contracts.contract
-
 data class PieceData(
         val piece: ChessPiece,
         val position: Position,
@@ -77,7 +75,33 @@ data class ChessState(
             }
             PieceType.KING -> {
                 addMovesForDirections(moves, arrayOf(Pair(1, 0), Pair(0, 1), Pair(-1, 0), Pair(0, -1), Pair(1, 1), Pair(-1, 1), Pair(1, -1), Pair(-1, -1)), pieceData, oneMoveOnly = true)
-                // TODO castle moves
+                if (!pieceData.movedYet) {
+                    val rooks = activePieces.filter {
+                        it.piece.type == PieceType.ROOK && it.piece.color == piece.color && !it.movedYet && it.piece.startingPosition.rowIndex == piece.startingPosition.rowIndex
+                    }
+                    for (rook in rooks) {
+                        val direction = if (rook.position.columnIndex < pieceData.position.columnIndex) -1 else 1
+                        var clear = true
+                        var runningColumnIndex = pieceData.position.columnIndex + direction
+                        while (runningColumnIndex != rook.position.columnIndex) {
+                            if (pieceAt(Position(runningColumnIndex, pieceData.position.rowIndex)) != null) {
+                                clear = false
+                                break
+                            }
+                            runningColumnIndex += direction
+                        }
+                        if (clear) {
+                            moves.add(ChessMove(
+                                    piece,
+                                    pieceData.position,
+                                    Position(pieceData.position.columnIndex + direction * 2, pieceData.position.rowIndex),
+                                    ChessMove.Type.CASTLE,
+                                    pieceCaptured = null,
+                                    castleData = ChessMove.CastleData(rook.piece, rook.position, Position(pieceData.position.columnIndex + direction, pieceData.position.rowIndex))
+                            ))
+                        }
+                    }
+                }
             }
             PieceType.KNIGHT -> {
                 addMovesForDirections(moves, arrayOf(Pair(2, 1), Pair(1, 2), Pair(-1, 2), Pair(-2, 1), Pair(-2, -1), Pair(-1, -2), Pair(1, -2), Pair(2, -1)), pieceData, oneMoveOnly = true)
