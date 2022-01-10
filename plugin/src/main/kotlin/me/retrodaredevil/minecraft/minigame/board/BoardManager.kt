@@ -10,7 +10,7 @@ class BoardManager(
 ) {
     private val chessGamesRaw = mutableListOf<MinecraftChessGame>()
 
-    private val chessGames: List<MinecraftChessGame>
+    val chessGames: List<MinecraftChessGame>
         get() {
             chessGamesRaw.removeIf { it.isOver }
             return chessGamesRaw

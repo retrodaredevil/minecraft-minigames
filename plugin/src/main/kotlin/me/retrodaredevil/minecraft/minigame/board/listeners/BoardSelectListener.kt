@@ -5,6 +5,7 @@ import me.retrodaredevil.minecraft.minigame.board.BoardManager
 import me.retrodaredevil.minecraft.minigame.chess.AiChessPlayer
 import me.retrodaredevil.minecraft.minigame.chess.ChessPlacer
 import me.retrodaredevil.minecraft.minigame.chess.MinecraftChessPlayer
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.attribute.Attribute
@@ -16,6 +17,8 @@ import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockDamageEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
+import org.bukkit.event.player.PlayerAnimationEvent
+import org.bukkit.event.player.PlayerAnimationType
 import org.bukkit.event.player.PlayerJoinEvent
 
 class BoardSelectListener(
@@ -25,44 +28,14 @@ class BoardSelectListener(
     private var waitingPlayer: Player? = null
 
     @EventHandler
-    fun onPlayerJoin(event: PlayerJoinEvent) {
-        val player = event.player
-        player.sendMessage("Heyo there");
-        player.allowFlight = true
-        player.health = player.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
-        player.foodLevel = 20
-    }
-    @EventHandler
-    fun onHealthChange(event: EntityDamageEvent) {
-        val entity = event.entity
-        if (entity is Player) {
-            event.isCancelled = true
-        }
-    }
-    @EventHandler
-    fun onHungerChange(event: FoodLevelChangeEvent) {
-        event.isCancelled = true
-    }
-
-    @EventHandler
-    fun onBlockBreak(event: BlockBreakEvent) {
-        println("Block break by player: ${event.player}")
-        if (event.player.gameMode == GameMode.CREATIVE) {
-            val result = onPlayerSelectBlock(event.block, event.player)
-            println("result: $result")
-            if (result) {
-                event.isCancelled = true
-            }
-        }
-    }
-    @EventHandler
-    fun onBlockBreakStart(event: BlockDamageEvent) {
-        println("Block break start by player: ${event.player}")
-        if (event.player.gameMode != GameMode.CREATIVE) {
-            val result = onPlayerSelectBlock(event.block, event.player)
-            println("result: $result")
-            if (result) {
-                event.isCancelled = true
+    fun onPlayerPunch(event: PlayerAnimationEvent) {
+        if (event.animationType == PlayerAnimationType.ARM_SWING) {
+            val block = event.player.getTargetBlockExact(20)
+            if (block != null) {
+                val result = onPlayerSelectBlock(block, event.player)
+                if (result) {
+                    event.isCancelled = true
+                }
             }
         }
     }
@@ -79,6 +52,15 @@ class BoardSelectListener(
             if (player.gameMode == GameMode.CREATIVE) {
                 // Players in creative mode cannot start games by clicking on blocks
                 return false
+            }
+            if (Bukkit.getOnlinePlayers().size == 1) { // HARD code ability to play against AI
+                player.sendMessage("Starting game against AI. You are white.")
+                boardManager.startGame(
+                        worldBoard,
+                        MinecraftChessPlayer(ChessColor.WHITE, player),
+                        AiChessPlayer(ChessColor.BLACK),
+                )
+                return true
             }
             val waitingPlayer = this.waitingPlayer
             if (waitingPlayer == null || !waitingPlayer.isOnline) {

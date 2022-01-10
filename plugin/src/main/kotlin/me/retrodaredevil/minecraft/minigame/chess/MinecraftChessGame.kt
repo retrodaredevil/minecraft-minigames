@@ -52,4 +52,9 @@ class MinecraftChessGame(
 
     override val isOver: Boolean
         get() = game.getResult() != null
+
+    fun getPlayer(color: ChessColor) = when(color) {
+        ChessColor.WHITE -> playerWhite
+        ChessColor.BLACK -> playerBlack
+    }
 }

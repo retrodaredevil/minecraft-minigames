@@ -24,10 +24,10 @@ class ChessPlacer(
             val offset = (tileWidth - 1) / 2
             val rightDirection = forwardDirection.rotateRight()
             val xMultiplier = forwardDirection.x + rightDirection.x
-            val yMultiplier = forwardDirection.z + rightDirection.z
+            val zMultiplier = forwardDirection.z + rightDirection.z
             val offsetX = xMultiplier * offset
-            val offsetY = yMultiplier * offset
-            BlockCoordinate(lowerLeftCorner.x + offsetX, lowerLeftCorner.y, lowerLeftCorner.z + offsetY)
+            val offsetZ = zMultiplier * offset
+            BlockCoordinate(lowerLeftCorner.x + offsetX, lowerLeftCorner.y, lowerLeftCorner.z + offsetZ)
         }
         if (piece == null) {
             for (offset in 1..3) {

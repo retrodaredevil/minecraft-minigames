@@ -16,7 +16,8 @@ class MinecraftChessPlayer(
 ) : ChessPlayer {
     val playerUuid: UUID = player.uniqueId
     private val playerName: String = player.name
-    private var selectedPiece: ChessPiece? = null
+    var selectedPiece: ChessPiece? = null
+        private set
 
     override fun onTurnStart(chessGame: MinecraftChessGame) {
         val player = Bukkit.getPlayer(playerUuid)
@@ -46,7 +47,6 @@ class MinecraftChessPlayer(
     }
 
     fun onPositionSelect(position: Position, player: Player, chessGame: MinecraftChessGame) {
-        println("onPositionSelect!")
         if (color != chessGame.game.turn) {
             player.sendMessage("${ChatColor.AQUA}It is not your turn!!")
             return
@@ -55,7 +55,6 @@ class MinecraftChessPlayer(
         val pieceToSelect = if (pieceRaw != null && pieceRaw.color == color) pieceRaw else null
         if (pieceToSelect != null) {
             selectedPiece = pieceToSelect
-            println("selected: $selectedPiece")
         } else {
             val selectedPiece = this.selectedPiece
             if (selectedPiece == null) {
@@ -65,6 +64,7 @@ class MinecraftChessPlayer(
                 val move = moves.firstOrNull { it.endPosition == position }
                 if (move == null) {
                     player.sendMessage("That is not a valid move")
+                    this.selectedPiece = null
                 } else {
                     player.sendMessage("Great move!")
                     chessGame.move(move)
