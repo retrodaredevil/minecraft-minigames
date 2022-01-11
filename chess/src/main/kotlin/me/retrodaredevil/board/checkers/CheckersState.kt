@@ -11,7 +11,13 @@ data class PieceData(
 data class CheckersState(
         val activePieces: List<PieceData>,
         val inactivePieces: List<CheckersPiece>,
+        val turn: CheckersColor,
+        /** When set to a non-null value, the data returned from [getPossibleMovesForColor] with */
+        val jumpingPiece: CheckersPiece? = null,
 ) {
+    init {
+        require(jumpingPiece == null || turn == jumpingPiece.color) { "The jumping piece must be the same color as the current turn! Otherwise make it null!" }
+    }
 
     fun getPieceAt(position: Position) = pieceAt(position)?.piece
 
@@ -50,7 +56,7 @@ data class CheckersState(
                 val jumpEndPiece = jumpEndPosition?.let { pieceAt(it) }
 
                 if (targetPiece == null) {
-                    // no piece to the left, so we can move there
+                    // no where we want to move, so we can move there
                     if (movePosition != null) {
                         regularMoves.add(CheckersMove(
                                 pieceData.piece, pieceData.position, movePosition,
@@ -60,27 +66,29 @@ data class CheckersState(
                         ))
                     }
                 } else if (jumpEndPosition != null && jumpEndPiece == null && targetPiece.piece.color != pieceData.piece.color) {
-                    // There is a piece to the left that we can jump over
+                    // There is a piece we can jump over
                     jumpMoves.add(CheckersMove(
                             pieceData.piece, pieceData.position, jumpEndPosition,
                             jumpedPiece = targetPiece.piece,
                             jumpedPiecePosition = movePosition,
-                            promoteToKing = !pieceData.piece.isKing && movePosition.rowIndex == kingPromoteRowIndex
+                            promoteToKing = !pieceData.piece.isKing && jumpEndPosition.rowIndex == kingPromoteRowIndex
                     ))
                 }
             }
         }
         return Moves(regularMoves, jumpMoves)
     }
-    fun getPossibleMoves(piece: CheckersPiece): Moves {
-        val pieceData = activePieces.firstOrNull { it.piece == piece} ?: error("Could not find piece: $piece in active pieces")
-        return getPossibleMoves(pieceData)
-    }
     fun getPossibleMovesForColor(color: CheckersColor): List<CheckersMove> {
-        val moves: Moves = activePieces
-                .filter { it.piece.color == color }
+        val pieces = activePieces.filter { it.piece.color == color }
+        if (pieces.isEmpty()) {
+            return emptyList()
+        }
+        val moves: Moves = pieces.asSequence()
                 .map { getPossibleMoves(it) }
                 .reduce { moves1, moves2 -> moves1 + moves2 }
+        if (jumpingPiece != null) {
+            return moves.jumpMoves.filter { it.piece == jumpingPiece || it.piece.originalPiece == jumpingPiece}
+        }
         if (moves.jumpMoves.isNotEmpty()) {
             return moves.jumpMoves
         }
@@ -108,7 +116,13 @@ data class CheckersState(
         if (move.promoteToKing) {
             newInactivePieces.add(move.piece)
         }
-        return CheckersState(newActivePieces, newInactivePieces)
+        if (move.jumpedPiece != null) {
+            val state = CheckersState(newActivePieces, newInactivePieces, turn, jumpingPiece = move.piece)
+            if (state.getPossibleMovesForColor(turn).isNotEmpty()) { // if the same piece can jump again, return this state
+                return state
+            }
+        }
+        return CheckersState(newActivePieces, newInactivePieces, turn.opposite)
     }
 
 
@@ -131,7 +145,7 @@ data class CheckersState(
             addRow(activePieces, 1, 7, CheckersColor.WHITE)
             addRow(activePieces, 0, 6, CheckersColor.WHITE)
             addRow(activePieces, 1, 5, CheckersColor.WHITE)
-            return CheckersState(activePieces, emptyList())
+            return CheckersState(activePieces, emptyList(), CheckersColor.RED)
         }
 
         private fun addRow(activePieces: MutableList<in PieceData>, columnIndexStart: Int, rowIndex: Int, color: CheckersColor) {

@@ -4,17 +4,10 @@ class CheckersGame {
     var state = CheckersState.createDefault()
         private set
 
-    var turn = CheckersColor.RED
-        private set
-
     fun move(move: CheckersMove) {
         state = state.move(move)
-        if (!move.isJump || !state.getPossibleMovesForColor(turn).firstOrNull()!!.isJump) {
-            // Turn is over only if the player has no jumps to do
-            turn = turn.opposite
-        }
     }
-    fun getWinner(): CheckersColor? {
+    fun getResult(): Result? {
         var hasRed = false
         var hasWhite = false
         for (piece in state.activePieces) {
@@ -25,18 +18,20 @@ class CheckersGame {
                 hasWhite = true
             }
             if (hasRed && hasWhite) {
+                // If both colors exist, then make sure that the current turn has moves to do
+                if (state.getPossibleMovesForColor(state.turn).isEmpty()) {
+                    return Result(state.turn.opposite, true)
+                }
                 return null
             }
         }
         if (!hasRed) {
-            return CheckersColor.WHITE
+            return Result(CheckersColor.WHITE, false)
         }
-        return CheckersColor.RED
+        return Result(CheckersColor.RED, false)
     }
     data class Result(
-            val winner: CheckersColor?,
-            val isStalemateWin: Boolean,
-    ) {
-
-    }
+            val winner: CheckersColor,
+            val isStalemate: Boolean,
+    )
 }

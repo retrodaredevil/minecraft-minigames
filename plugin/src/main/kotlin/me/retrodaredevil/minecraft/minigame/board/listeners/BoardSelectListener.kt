@@ -19,7 +19,7 @@ class BoardSelectListener(
     @EventHandler
     fun onPlayerPunch(event: PlayerAnimationEvent) {
         if (event.animationType == PlayerAnimationType.ARM_SWING) {
-            val block = event.player.getTargetBlockExact(20)
+            val block = event.player.getTargetBlockExact(50)
             if (block != null) {
                 onPlayerSelectBlock(block, event.player)
                 // We don't really care about cancelling this event, but if we did, we could check the result of onPlayerSelectBlock

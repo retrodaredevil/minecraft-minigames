@@ -21,7 +21,7 @@ class BukkitCheckersPlayer(
 
     override fun onPositionSelect(position: Position, player: Player, game: MinecraftBoardGame) {
         val checkersGame = game as MinecraftCheckersGame
-        if (color != checkersGame.game.turn) {
+        if (color != checkersGame.game.state.turn) {
             player.sendMessage("${ChatColor.AQUA}It is not your turn!!")
             return
         }
@@ -30,7 +30,6 @@ class BukkitCheckersPlayer(
         val pieceToSelect = if (pieceRaw != null && pieceRaw.color == color) pieceRaw else null
         if (pieceToSelect != null) {
             selectedPiece = pieceToSelect
-            println("Possible moves for newly selected piece: ${checkersGame.game.state.getPossibleMoves(pieceToSelect)}")
             checkAutoSelect(checkersGame)
         } else {
             val selectedPiece = this.selectedPiece

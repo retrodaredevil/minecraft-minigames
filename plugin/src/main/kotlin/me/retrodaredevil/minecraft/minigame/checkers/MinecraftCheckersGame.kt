@@ -16,7 +16,7 @@ class MinecraftCheckersGame(
 ) : MinecraftBoardGame {
     private val placer = CheckersPlacer.createDefault()
     override val isOver: Boolean
-        get() = game.getWinner() != null
+        get() = game.getResult() != null
     override val players: List<CheckersPlayer> = listOf(redPlayer, whitePlayer)
 
     val game = CheckersGame()
@@ -38,21 +38,21 @@ class MinecraftCheckersGame(
     }
 
     fun move(move: CheckersMove) {
-        val turnBefore = game.turn
+        val turnBefore = game.state.turn
         game.move(move)
-        val turnAfter = game.turn
+        val turnAfter = game.state.turn
 
         updateBoard()
 
-        val winner = game.getWinner()
-        if (winner == null) {
+        val result = game.getResult()
+        if (result == null) {
             if (turnBefore != turnAfter) {
                 getPlayer(turnAfter).onTurnStart(this)
             } else {
                 getPlayer(turnAfter).onTurnContinue(this)
             }
         } else {
-            players.forEach { it.onGameEnd(winner) }
+            players.forEach { it.onGameEnd(result.winner) }
         }
     }
 }

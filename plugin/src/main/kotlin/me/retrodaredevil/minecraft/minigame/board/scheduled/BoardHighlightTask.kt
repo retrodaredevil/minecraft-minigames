@@ -29,7 +29,7 @@ class BoardHighlightTask(
                     }
                 }
             } else if (boardGame is MinecraftCheckersGame) {
-                val checkersPlayer = boardGame.getPlayer(boardGame.game.turn)
+                val checkersPlayer = boardGame.getPlayer(boardGame.game.state.turn)
                 if (checkersPlayer is BukkitCheckersPlayer) {
                     val player = Bukkit.getPlayer(checkersPlayer.playerId)
                     val selectedPiece = checkersPlayer.selectedPiece
