@@ -46,8 +46,11 @@ class ChessPlacer(
                     block3.type = Material.AIR
 
                     val face = getWhiteBlockFace(forwardDirection)
-                    (block2.state.blockData as Directional).facing = if (piece.color == ChessColor.WHITE) face else face.oppositeFace
-                    block2.state.update()
+                    val state = block2.state // https://bukkit.org/threads/rotating-blocks-using-the-directional-interface.406815/
+                    state.blockData = (block2.state.blockData as Directional).apply {
+                        facing = if (piece.color == ChessColor.WHITE) face else face.oppositeFace
+                    }
+                    state.update()
                 }
                 PieceType.QUEEN -> {
                     block2.type = Material.STONE_BRICK_WALL

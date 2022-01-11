@@ -3,6 +3,7 @@ package me.retrodaredevil.minecraft.minigame.checkers
 import me.retrodaredevil.board.checkers.CheckersColor
 import me.retrodaredevil.board.checkers.CheckersPiece
 import me.retrodaredevil.minecraft.minigame.BlockCoordinate
+import me.retrodaredevil.minecraft.minigame.board.ClearPiecePlacer
 import me.retrodaredevil.minecraft.minigame.board.FlatDirection
 import me.retrodaredevil.minecraft.minigame.board.PiecePlacer
 import me.retrodaredevil.minecraft.minigame.board.util.getCenter
@@ -21,11 +22,9 @@ class CheckersPlacer(
 
         val center = getCenter(lowerLeftCorner, forwardDirection, tileWidth)
 
-        if (piece == null) {
-            for (offset in 1..3) { // clear up to 3 blocks up in case we need to clear a chess piece
-                world.getBlockAt(center.x, center.y + offset, center.z).type = Material.AIR
-            }
-        } else {
+        ClearPiecePlacer.place(null, world, lowerLeftCorner, forwardDirection, tileWidth)
+
+        if (piece != null) {
             val material: Material
             val kingMaterial: Material
             val kingMaterialTopper: Material

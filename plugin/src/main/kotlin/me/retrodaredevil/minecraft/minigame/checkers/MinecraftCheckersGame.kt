@@ -14,7 +14,8 @@ class MinecraftCheckersGame(
         private val redPlayer: CheckersPlayer,
         private val whitePlayer: CheckersPlayer,
 ) : MinecraftBoardGame {
-    private val placer = CheckersPlacer.createDefault()
+//    private val placer = CheckersPlacer.createDefault()
+    private val placer = TorchCheckersPlacer.createDefault()
     override val isOver: Boolean
         get() = game.getResult() != null
     override val players: List<CheckersPlayer> = listOf(redPlayer, whitePlayer)

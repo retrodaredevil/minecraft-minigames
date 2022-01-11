@@ -40,10 +40,13 @@ class BukkitChessPlayer(
         }
         if (result.isStalemate) {
             player.sendMessage("Stalemate! Game over!")
+            player.sendTitle("Game over", "Stalemate", -1, -1, -1)
         } else if (result.winner == color) {
             player.sendMessage("You won!!!")
+            player.sendTitle("Game over", "You won", -1, -1, -1)
         } else {
             player.sendMessage("You lost!!")
+            player.sendTitle("Game over", "You lost", -1, -1, -1)
         }
     }
 
