@@ -1,5 +1,7 @@
 package me.retrodaredevil.board.chess
 
+import me.retrodaredevil.board.Position
+
 
 data class ChessMove(
         val piece: ChessPiece,

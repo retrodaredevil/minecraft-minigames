@@ -1,7 +1,7 @@
 package me.retrodaredevil.minecraft.minigame.board.implementations
 
 import me.retrodaredevil.board.BoardPiece
-import me.retrodaredevil.board.chess.Position
+import me.retrodaredevil.board.Position
 import me.retrodaredevil.minecraft.minigame.BlockCoordinate
 import me.retrodaredevil.minecraft.minigame.board.FlatDirection
 import me.retrodaredevil.minecraft.minigame.board.PiecePlacer
@@ -10,7 +10,6 @@ import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import kotlin.math.PI
-import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.sin
 

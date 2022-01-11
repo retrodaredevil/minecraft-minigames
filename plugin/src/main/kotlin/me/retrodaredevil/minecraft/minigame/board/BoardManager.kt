@@ -1,6 +1,6 @@
 package me.retrodaredevil.minecraft.minigame.board
 
-import me.retrodaredevil.board.chess.Position
+import me.retrodaredevil.board.Position
 import me.retrodaredevil.minecraft.minigame.chess.ChessPlayer
 import me.retrodaredevil.minecraft.minigame.chess.MinecraftChessGame
 import org.bukkit.block.Block
@@ -8,12 +8,12 @@ import org.bukkit.block.Block
 class BoardManager(
         val boards: List<WorldBoard>,
 ) {
-    private val chessGamesRaw = mutableListOf<MinecraftChessGame>()
+    private val gamesRaw = mutableListOf<MinecraftBoardGame>()
 
-    val chessGames: List<MinecraftChessGame>
+    val games: List<MinecraftBoardGame>
         get() {
-            chessGamesRaw.removeIf { it.isOver }
-            return chessGamesRaw
+            gamesRaw.removeIf { it.isOver }
+            return gamesRaw
         }
 
 
@@ -23,16 +23,12 @@ class BoardManager(
             if (position == null) null else Pair(it, position)
         }
     }
-    fun getChessGame(worldBoard: WorldBoard): MinecraftChessGame? {
-        return chessGames.firstOrNull { it.worldBoard == worldBoard }
+    fun getGame(worldBoard: WorldBoard): MinecraftBoardGame? {
+        return games.firstOrNull { it.worldBoard == worldBoard }
     }
-    fun startGame(worldBoard: WorldBoard, playerWhite: ChessPlayer, playerBlack: ChessPlayer): MinecraftChessGame {
-        check(getChessGame(worldBoard) == null) { "This board already has a chess game on it!" }
-        val game = MinecraftChessGame(worldBoard, playerWhite, playerBlack)
-        game.updateBoard()
-        game.playerWhite.onTurnStart(game)
-
-        chessGamesRaw.add(game)
-        return game
+    fun startGame(game: MinecraftBoardGame) {
+        check(getGame(game.worldBoard) == null) { "This board already has a game on it!" }
+        game.startGame()
+        gamesRaw.add(game)
     }
 }

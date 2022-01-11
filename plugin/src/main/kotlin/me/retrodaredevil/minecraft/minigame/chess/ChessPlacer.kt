@@ -6,6 +6,7 @@ import me.retrodaredevil.board.chess.PieceType
 import me.retrodaredevil.minecraft.minigame.BlockCoordinate
 import me.retrodaredevil.minecraft.minigame.board.FlatDirection
 import me.retrodaredevil.minecraft.minigame.board.PiecePlacer
+import me.retrodaredevil.minecraft.minigame.board.util.getCenter
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
@@ -17,18 +18,8 @@ class ChessPlacer(
         private val blackMaterial: Material,
 ) : PiecePlacer<ChessPiece> {
     override fun place(piece: ChessPiece?, world: World, lowerLeftCorner: BlockCoordinate, forwardDirection: FlatDirection, tileWidth: Int) {
-        if (tileWidth % 2 == 0) {
-            throw UnsupportedOperationException("ChessPlacer does not support even tileWidths! tileWidth: $tileWidth")
-        }
-        val center = run {
-            val offset = (tileWidth - 1) / 2
-            val rightDirection = forwardDirection.rotateRight()
-            val xMultiplier = forwardDirection.x + rightDirection.x
-            val zMultiplier = forwardDirection.z + rightDirection.z
-            val offsetX = xMultiplier * offset
-            val offsetZ = zMultiplier * offset
-            BlockCoordinate(lowerLeftCorner.x + offsetX, lowerLeftCorner.y, lowerLeftCorner.z + offsetZ)
-        }
+        val center = getCenter(lowerLeftCorner, forwardDirection, tileWidth)
+
         if (piece == null) {
             for (offset in 1..3) {
                 world.getBlockAt(center.x, center.y + offset, center.z).type = Material.AIR

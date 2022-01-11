@@ -3,24 +3,25 @@ package me.retrodaredevil.minecraft.minigame.chess
 import me.retrodaredevil.board.chess.ChessColor
 import me.retrodaredevil.board.chess.ChessGame
 import me.retrodaredevil.board.chess.ChessPiece
-import me.retrodaredevil.board.chess.Position
+import me.retrodaredevil.board.Position
+import me.retrodaredevil.minecraft.minigame.board.BukkitBoardGamePlayer
+import me.retrodaredevil.minecraft.minigame.board.MinecraftBoardGame
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
-import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import java.util.*
 
-class MinecraftChessPlayer(
+class BukkitChessPlayer(
         override val color: ChessColor,
         player: Player,
-) : ChessPlayer {
-    val playerUuid: UUID = player.uniqueId
+) : ChessPlayer, BukkitBoardGamePlayer {
+    override val playerId: UUID = player.uniqueId
     private val playerName: String = player.name
     var selectedPiece: ChessPiece? = null
         private set
 
     override fun onTurnStart(chessGame: MinecraftChessGame) {
-        val player = Bukkit.getPlayer(playerUuid)
+        val player = Bukkit.getPlayer(playerId)
         if (player == null) {
             println("Player: $playerName must not be online!")
             return
@@ -32,7 +33,7 @@ class MinecraftChessPlayer(
     }
 
     override fun onGameEnd(result: ChessGame.Result) {
-        val player = Bukkit.getPlayer(playerUuid)
+        val player = Bukkit.getPlayer(playerId)
         if (player == null) {
             println("Player: $playerName must not be online!")
             return
@@ -46,7 +47,9 @@ class MinecraftChessPlayer(
         }
     }
 
-    fun onPositionSelect(position: Position, player: Player, chessGame: MinecraftChessGame) {
+    override fun onPositionSelect(position: Position, player: Player, game: MinecraftBoardGame) {
+        val chessGame = game as MinecraftChessGame
+
         if (color != chessGame.game.turn) {
             player.sendMessage("${ChatColor.AQUA}It is not your turn!!")
             return

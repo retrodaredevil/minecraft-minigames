@@ -1,5 +1,7 @@
 package me.retrodaredevil.board.chess
 
+import me.retrodaredevil.board.Position
+
 data class PieceData(
         val piece: ChessPiece,
         val position: Position,
@@ -143,17 +145,17 @@ data class ChessState(
         return activePieces.filter{ it.piece.color == color }
                 .flatMap { getPossibleMoves(it.piece) }
     }
+    fun hasAnyMoves(color: ChessColor): Boolean {
+        return activePieces.any { it.piece.color == color && getPossibleMoves(it.piece).isNotEmpty() }
+    }
 
-    fun move(move: ChessMove, pawnPromotionPieceType: PieceType?, debug: Boolean = false): ChessState {
+    fun move(move: ChessMove, pawnPromotionPieceType: PieceType?): ChessState {
         if (move.moveType == ChessMove.Type.PAWN_PROMOTION) {
             require(pawnPromotionPieceType != null) { "Must provide promotion piece for a pawn promotion move!" }
             require(pawnPromotionPieceType != PieceType.PAWN) { "Cannot choose pawn!" }
             require(pawnPromotionPieceType != PieceType.KING) { "Cannot choose king!" }
         } else {
             require(pawnPromotionPieceType == null) { "You cannot provide a pawn promotion piece type unless the move type supports it!" }
-        }
-        if (debug) {
-            println("Doing move: $move")
         }
 
         val newActivePieces = activePieces.asSequence().mapNotNull {
@@ -164,7 +166,6 @@ data class ChessState(
                     // Alter the position of a piece that just moved
                     PieceData(move.piece, move.endPosition, movedYet = true, justMoved = true)
                 } else {
-                    println("Promoting pawn: ${move.piece} with $pawnPromotionPieceType")
                     // We will make the pawn inactive below and will add a piece below
                     null
                 }
@@ -183,11 +184,6 @@ data class ChessState(
             val newPiece = ChessPiece(move.endPosition, move.piece.color, pawnPromotionPieceType, promotedPawnPiece = move.piece)
             newActivePieces.add(PieceData(newPiece, move.endPosition, movedYet = true, justMoved = true)) // add the new piece to the active pieces
             newInactivePieces.add(move.piece) // make the pawn inactive
-            if (debug) {
-                println("Yay pawn promotion! for newPiece: $newPiece")
-                println(newActivePieces)
-                println(newInactivePieces)
-            }
         }
         return ChessState(newActivePieces, newInactivePieces)
     }

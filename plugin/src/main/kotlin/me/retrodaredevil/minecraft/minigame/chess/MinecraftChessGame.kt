@@ -1,5 +1,6 @@
 package me.retrodaredevil.minecraft.minigame.chess
 
+import me.retrodaredevil.board.Position
 import me.retrodaredevil.board.chess.*
 import me.retrodaredevil.minecraft.minigame.board.MinecraftBoardGame
 import me.retrodaredevil.minecraft.minigame.board.WorldBoard
@@ -14,12 +15,16 @@ class MinecraftChessGame(
         require(playerWhite.color == ChessColor.WHITE)
         require(playerBlack.color == ChessColor.BLACK)
     }
-    val players = listOf(playerWhite, playerBlack)
+    override val players = listOf(playerWhite, playerBlack)
     val game = ChessGame()
     private val placer = ChessPlacer(Material.WHITE_WOOL, Material.BLACK_WOOL)
-    private var done = false
 
-    fun updateBoard() {
+    override fun startGame() {
+        updateBoard()
+        playerWhite.onTurnStart(this)
+    }
+
+    private fun updateBoard() {
         for (row in 0..7) {
             for (column in 0..7) {
                 worldBoard.setPiece(placer, null, Position(column, row))
@@ -42,11 +47,10 @@ class MinecraftChessGame(
         val result = game.getResult()
         println("result: $result")
         if (result != null) {
-            done = true
             players.forEach { it.onGameEnd(result) }
         } else {
             // This must be at the end because move may be called recursively depending on the implementation of the player
-            players.firstOrNull { it.color == game.turn }!!.onTurnStart(this)
+            getPlayer(game.turn).onTurnStart(this)
         }
     }
 

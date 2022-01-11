@@ -5,4 +5,6 @@ package me.retrodaredevil.board
  * [hashCode] and [equals] should be implemented.
  */
 interface BoardPiece {
+    override fun equals(other: Any?): Boolean
+    override fun hashCode(): Int
 }

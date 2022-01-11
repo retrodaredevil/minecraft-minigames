@@ -1,4 +1,4 @@
-package me.retrodaredevil.board.chess
+package me.retrodaredevil.board
 
 data class Position(
         val columnIndex: Int,
