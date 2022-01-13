@@ -10,4 +10,6 @@ interface CheckersPlayer : BoardGamePlayer {
     fun onTurnContinue(checkersGame: MinecraftCheckersGame)
 
     fun onGameEnd(winner: CheckersColor?)
+    fun onDraw()
+    fun onForfeit(forfeitingPlayerColor: CheckersColor)
 }

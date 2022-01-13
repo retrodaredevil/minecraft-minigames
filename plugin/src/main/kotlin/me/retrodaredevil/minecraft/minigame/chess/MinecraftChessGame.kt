@@ -18,6 +18,7 @@ class MinecraftChessGame(
     override val players = listOf(playerWhite, playerBlack)
     val game = ChessGame()
     private val placer = ChessPlacer(Material.WHITE_WOOL, Material.BLACK_WOOL)
+    private var forfeitingPlayerColor: ChessColor? = null
 
     override fun startGame() {
         updateBoard()
@@ -37,6 +38,8 @@ class MinecraftChessGame(
 
     fun move(move: ChessMove) {
         check(move.piece.color == game.turn) { "It's not your turn!!! move: $move turn: ${game.turn}"}
+        val beforeResult = game.getResult()
+        check(beforeResult == null) { "You cannot continue a game with a result! beforeResult: $beforeResult" }
         // TODO pawn promotion stuff
         println("Turn before move: ${game.turn}")
         game.move(move, if (move.moveType == ChessMove.Type.PAWN_PROMOTION) PieceType.QUEEN else null)
@@ -53,9 +56,13 @@ class MinecraftChessGame(
             getPlayer(game.turn).onTurnStart(this)
         }
     }
+    fun playerForfeit(playerColor: ChessColor) {
+        forfeitingPlayerColor = playerColor
+        players.forEach { it.onForfeit(playerColor) }
+    }
 
     override val isOver: Boolean
-        get() = game.getResult() != null
+        get() = game.getResult() != null || forfeitingPlayerColor != null
 
     fun getPlayer(color: ChessColor) = when(color) {
         ChessColor.WHITE -> playerWhite

@@ -6,6 +6,7 @@ import me.retrodaredevil.board.chess.ChessPiece
 import me.retrodaredevil.board.Position
 import me.retrodaredevil.minecraft.minigame.board.BukkitBoardGamePlayer
 import me.retrodaredevil.minecraft.minigame.board.MinecraftBoardGame
+import me.retrodaredevil.minecraft.minigame.withPlayerIfOnline
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -40,13 +41,26 @@ class BukkitChessPlayer(
         }
         if (result.isStalemate) {
             player.sendMessage("Stalemate! Game over!")
-            player.sendTitle("Game over", "Stalemate", -1, -1, -1)
         } else if (result.winner == color) {
             player.sendMessage("You won!!!")
-            player.sendTitle("Game over", "You won", -1, -1, -1)
         } else {
             player.sendMessage("You lost!!")
-            player.sendTitle("Game over", "You lost", -1, -1, -1)
+        }
+    }
+
+    override fun onDraw() {
+        withPlayerIfOnline(playerId) { player ->
+            player.sendMessage("The match has ended in a draw!")
+        }
+    }
+
+    override fun onForfeit(forfeitingPlayerColor: ChessColor) {
+        withPlayerIfOnline(playerId) { player ->
+            if (color == forfeitingPlayerColor) {
+                player.sendMessage("You have forfeited!")
+            } else {
+                player.sendMessage("The other player has forfeited! You have won!")
+            }
         }
     }
 
@@ -78,5 +92,10 @@ class BukkitChessPlayer(
                 }
             }
         }
+    }
+
+    override fun initiateForfeit(player: Player, game: MinecraftBoardGame) {
+        val chessGame = game as MinecraftChessGame
+        chessGame.playerForfeit(color)
     }
 }

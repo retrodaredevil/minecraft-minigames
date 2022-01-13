@@ -16,5 +16,11 @@ data class Position(
 
     companion object {
         fun ofOrNull(columnIndex: Int, rowIndex: Int): Position? = if(columnIndex !in 0..7 || rowIndex !in 0..7) null else Position(columnIndex, rowIndex)
+
+        val ALL: List<Position> = (0 until 64).map {
+            val column = it % 8
+            val row = it / 8
+            Position(column, row)
+        }
     }
 }

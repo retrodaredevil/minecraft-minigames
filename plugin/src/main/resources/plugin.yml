@@ -5,3 +5,8 @@ description: Minigames plugin
 authors: [retrodaredevil]
 depend: []
 api-version: 1.13
+commands:
+  forfeit:
+    description: Forfeits the game you are currently in
+    usage: /<command>
+    aliases: [ff]

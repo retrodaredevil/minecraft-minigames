@@ -18,4 +18,10 @@ class AiCheckersPlayer(
     override fun onGameEnd(winner: CheckersColor?) {
     }
 
+    override fun onDraw() {
+    }
+
+    override fun onForfeit(forfeitingPlayerColor: CheckersColor) {
+    }
+
 }

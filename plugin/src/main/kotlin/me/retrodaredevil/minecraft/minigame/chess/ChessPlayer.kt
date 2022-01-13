@@ -9,4 +9,6 @@ interface ChessPlayer : BoardGamePlayer {
     fun onTurnStart(chessGame: MinecraftChessGame)
 
     fun onGameEnd(result: ChessGame.Result)
+    fun onDraw()
+    fun onForfeit(forfeitingPlayerColor: ChessColor)
 }

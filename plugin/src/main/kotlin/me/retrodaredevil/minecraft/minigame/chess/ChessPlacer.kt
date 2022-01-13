@@ -4,6 +4,7 @@ import me.retrodaredevil.board.chess.ChessColor
 import me.retrodaredevil.board.chess.ChessPiece
 import me.retrodaredevil.board.chess.PieceType
 import me.retrodaredevil.minecraft.minigame.BlockCoordinate
+import me.retrodaredevil.minecraft.minigame.board.ClearPiecePlacer
 import me.retrodaredevil.minecraft.minigame.board.FlatDirection
 import me.retrodaredevil.minecraft.minigame.board.PiecePlacer
 import me.retrodaredevil.minecraft.minigame.board.util.getCenter
@@ -18,13 +19,10 @@ class ChessPlacer(
         private val blackMaterial: Material,
 ) : PiecePlacer<ChessPiece> {
     override fun place(piece: ChessPiece?, world: World, lowerLeftCorner: BlockCoordinate, forwardDirection: FlatDirection, tileWidth: Int) {
+        ClearPiecePlacer.place(null, world, lowerLeftCorner, forwardDirection, tileWidth)
         val center = getCenter(lowerLeftCorner, forwardDirection, tileWidth)
 
-        if (piece == null) {
-            for (offset in 1..3) {
-                world.getBlockAt(center.x, center.y + offset, center.z).type = Material.AIR
-            }
-        } else {
+        if (piece != null) {
             placeWoolAtBlock(world.getBlockAt(center.x, center.y + 1, center.z), piece.color)
             val block2 = world.getBlockAt(center.x, center.y + 2, center.z)
             val block3 = world.getBlockAt(center.x, center.y + 3, center.z)

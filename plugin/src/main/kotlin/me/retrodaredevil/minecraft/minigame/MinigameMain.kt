@@ -1,5 +1,7 @@
 package me.retrodaredevil.minecraft.minigame
 
+import me.retrodaredevil.minecraft.minigame.board.BoardActionHandler
+import me.retrodaredevil.minecraft.minigame.board.BoardGameCommandHandler
 import me.retrodaredevil.minecraft.minigame.board.NewGameHandler
 import me.retrodaredevil.minecraft.minigame.board.listeners.BoardSelectListener
 import me.retrodaredevil.minecraft.minigame.board.listeners.GameSelectListener
@@ -14,11 +16,14 @@ class MinigameMain : JavaPlugin() {
         logger.info("Enabling minigames plugin!")
         val boardManager = createBoardManager()
         val newGameHandler = NewGameHandler(boardManager)
-        server.pluginManager.registerEvents(BoardSelectListener(boardManager, newGameHandler), this)
+        val boardActionHandler = BoardActionHandler()
+        server.pluginManager.registerEvents(BoardSelectListener(boardManager, newGameHandler, boardActionHandler), this)
         server.pluginManager.registerEvents(SimpleListener(), this)
         server.pluginManager.registerEvents(GameSelectListener(newGameHandler), this)
         Bukkit.getScheduler().runTaskTimer(this, BoardHighlightTask(boardManager), 0L, 10L)
         Bukkit.getScheduler().runTaskTimer(this, newGameHandler::checkExpiredConfigs, 2L, 20L)
+
+        BoardGameCommandHandler(boardActionHandler).register(this)
     }
 
     override fun onDisable() {

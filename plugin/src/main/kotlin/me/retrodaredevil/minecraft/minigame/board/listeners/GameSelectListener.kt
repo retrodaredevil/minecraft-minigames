@@ -46,6 +46,7 @@ class GameSelectListener(
             val choice = when (event.slot) {
                 GameTypeSelectInventory.CHESS_INDEX -> NewGameHandler.GameType.CHESS
                 GameTypeSelectInventory.CHECKERS_INDEX -> NewGameHandler.GameType.CHECKERS
+                GameTypeSelectInventory.OTHELLO_INDEX -> NewGameHandler.GameType.OTHELLO
                 else -> null
             }
             if (choice != null) {
@@ -76,6 +77,7 @@ class GameSelectListener(
     object GameTypeSelectInventory {
         const val CHESS_INDEX = 0
         const val CHECKERS_INDEX = 1
+        const val OTHELLO_INDEX = 2
         val inventory: Inventory by lazy {
             val inventory = Bukkit.createInventory(null, 18, "${ChatColor.AQUA}Game Select")
             inventory.setItem(CHESS_INDEX, ItemStack(Material.LECTERN).apply {
@@ -86,6 +88,11 @@ class GameSelectListener(
             inventory.setItem(CHECKERS_INDEX, ItemStack(Material.RED_WOOL).apply {
                 itemMeta = itemMeta!!.apply {
                     setDisplayName("Checkers")
+                }
+            })
+            inventory.setItem(OTHELLO_INDEX, ItemStack(Material.BLACKSTONE_SLAB).apply {
+                itemMeta = itemMeta!!.apply {
+                    setDisplayName("Othello")
                 }
             })
             inventory

@@ -15,4 +15,10 @@ class AiChessPlayer(override val color: ChessColor) : ChessPlayer {
 
     override fun onGameEnd(result: ChessGame.Result) {
     }
+
+    override fun onDraw() {
+    }
+
+    override fun onForfeit(forfeitingPlayerColor: ChessColor) {
+    }
 }

@@ -3,8 +3,10 @@ package me.retrodaredevil.minecraft.minigame.checkers
 import me.retrodaredevil.board.Position
 import me.retrodaredevil.board.checkers.CheckersColor
 import me.retrodaredevil.board.checkers.CheckersPiece
+import me.retrodaredevil.board.chess.ChessColor
 import me.retrodaredevil.minecraft.minigame.board.BukkitBoardGamePlayer
 import me.retrodaredevil.minecraft.minigame.board.MinecraftBoardGame
+import me.retrodaredevil.minecraft.minigame.withPlayerIfOnline
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -83,6 +85,27 @@ class BukkitCheckersPlayer(
                     player.sendMessage("You lost!")
                 }
             }
+        }
+    }
+
+    override fun initiateForfeit(player: Player, game: MinecraftBoardGame) {
+        val checkersGame = game as MinecraftCheckersGame
+        checkersGame.game
+    }
+
+    override fun onForfeit(forfeitingPlayerColor: CheckersColor) {
+        withPlayerIfOnline(playerId) { player ->
+            if (color == forfeitingPlayerColor) {
+                player.sendMessage("You have forfeited!")
+            } else {
+                player.sendMessage("The other player has forfeited! You have won!")
+            }
+        }
+    }
+
+    override fun onDraw() {
+        withPlayerIfOnline(playerId) { player ->
+            player.sendMessage("The match has ended in a draw!")
         }
     }
 }

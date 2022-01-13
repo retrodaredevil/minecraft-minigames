@@ -2,6 +2,7 @@ package me.retrodaredevil.minecraft.minigame.board
 
 import me.retrodaredevil.board.checkers.CheckersColor
 import me.retrodaredevil.board.chess.ChessColor
+import me.retrodaredevil.board.othello.OthelloColor
 import me.retrodaredevil.minecraft.minigame.board.listeners.GameSelectListener
 import me.retrodaredevil.minecraft.minigame.checkers.AiCheckersPlayer
 import me.retrodaredevil.minecraft.minigame.checkers.BukkitCheckersPlayer
@@ -9,6 +10,9 @@ import me.retrodaredevil.minecraft.minigame.checkers.MinecraftCheckersGame
 import me.retrodaredevil.minecraft.minigame.chess.AiChessPlayer
 import me.retrodaredevil.minecraft.minigame.chess.BukkitChessPlayer
 import me.retrodaredevil.minecraft.minigame.chess.MinecraftChessGame
+import me.retrodaredevil.minecraft.minigame.othello.AiOthelloPlayer
+import me.retrodaredevil.minecraft.minigame.othello.BukkitOthelloPlayer
+import me.retrodaredevil.minecraft.minigame.othello.MinecraftOthelloGame
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.time.Duration
@@ -95,20 +99,28 @@ class NewGameHandler(
         gamesBeingConfigured.remove(gameConfigToRemove)
         when (gameType) {
             GameType.CHESS -> {
+                player.sendMessage("Game is starting against the AI. You are white.")
                 boardManager.startGame(MinecraftChessGame(
                         worldBoard,
                         BukkitChessPlayer(ChessColor.WHITE, player),
                         AiChessPlayer(ChessColor.BLACK),
                 ))
-                player.sendMessage("Game is starting against the AI. You are white.")
             }
             GameType.CHECKERS -> {
+                player.sendMessage("Game is starting against the AI. You are red.")
                 boardManager.startGame(MinecraftCheckersGame(
                         worldBoard,
                         BukkitCheckersPlayer(CheckersColor.RED, player),
                         AiCheckersPlayer(CheckersColor.WHITE),
                 ))
-                player.sendMessage("Game is starting against the AI. You are red.")
+            }
+            GameType.OTHELLO -> {
+                player.sendMessage("Game is tarting against the AI. You are white.")
+                boardManager.startGame(MinecraftOthelloGame(
+                        worldBoard,
+                        BukkitOthelloPlayer(OthelloColor.WHITE, player),
+                        AiOthelloPlayer(OthelloColor.BLACK),
+                ))
             }
         }
     }
@@ -138,6 +150,15 @@ class NewGameHandler(
                 waitingPlayer.sendMessage("Game is starting with ${arrivingPlayer.name}. You are red.")
                 arrivingPlayer.sendMessage("Game is starting with ${waitingPlayer.name}. You are white.")
             }
+            GameType.OTHELLO -> {
+                boardManager.startGame(MinecraftOthelloGame(
+                        worldBoard,
+                        BukkitOthelloPlayer(OthelloColor.WHITE, waitingPlayer),
+                        BukkitOthelloPlayer(OthelloColor.BLACK, arrivingPlayer),
+                ))
+                waitingPlayer.sendMessage("Game is starting with ${arrivingPlayer.name}. You are white.")
+                arrivingPlayer.sendMessage("Game is starting with ${waitingPlayer.name}. You are black.")
+            }
         }
     }
 
@@ -153,6 +174,8 @@ class NewGameHandler(
         COMPUTER
     }
     enum class GameType {
-        CHESS, CHECKERS
+        CHESS,
+        CHECKERS,
+        OTHELLO,
     }
 }

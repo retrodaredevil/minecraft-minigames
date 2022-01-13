@@ -4,21 +4,18 @@ import me.retrodaredevil.board.Position
 import me.retrodaredevil.board.checkers.CheckersColor
 import me.retrodaredevil.board.checkers.CheckersGame
 import me.retrodaredevil.board.checkers.CheckersMove
+import me.retrodaredevil.board.chess.ChessColor
 import me.retrodaredevil.minecraft.minigame.board.MinecraftBoardGame
 import me.retrodaredevil.minecraft.minigame.board.WorldBoard
-import me.retrodaredevil.minecraft.minigame.chess.ChessPlacer
-import org.bukkit.Material
 
 class MinecraftCheckersGame(
         override val worldBoard: WorldBoard,
         private val redPlayer: CheckersPlayer,
         private val whitePlayer: CheckersPlayer,
 ) : MinecraftBoardGame {
-//    private val placer = CheckersPlacer.createDefault()
     private val placer = TorchCheckersPlacer.createDefault()
-    override val isOver: Boolean
-        get() = game.getResult() != null
     override val players: List<CheckersPlayer> = listOf(redPlayer, whitePlayer)
+    private var forfeitingPlayerColor: CheckersColor? = null
 
     val game = CheckersGame()
 
@@ -56,4 +53,10 @@ class MinecraftCheckersGame(
             players.forEach { it.onGameEnd(result.winner) }
         }
     }
+    fun playerForfeit(playerColor: CheckersColor) {
+        forfeitingPlayerColor = playerColor
+        players.forEach { it.onForfeit(playerColor) }
+    }
+    override val isOver: Boolean
+        get() = game.getResult() != null || forfeitingPlayerColor != null
 }

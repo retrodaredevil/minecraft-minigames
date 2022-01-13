@@ -19,4 +19,10 @@ interface BukkitBoardGamePlayer : BoardGamePlayer {
      * a [ClassCastException] may be thrown.
      */
     fun onPositionSelect(position: Position, player: Player, game: MinecraftBoardGame)
+
+    /**
+     * Called by [me.retrodaredevil.minecraft.minigame.board.listeners.BoardSelectListener].
+     * The implementation should tell [game] that this player has forfeited.
+     */
+    fun initiateForfeit(player: Player, game: MinecraftBoardGame)
 }

@@ -1,5 +1,6 @@
 package me.retrodaredevil.minecraft.minigame.board.listeners
 
+import me.retrodaredevil.minecraft.minigame.board.BoardActionHandler
 import me.retrodaredevil.minecraft.minigame.board.BoardManager
 import me.retrodaredevil.minecraft.minigame.board.BukkitBoardGamePlayer
 import me.retrodaredevil.minecraft.minigame.board.NewGameHandler
@@ -14,6 +15,7 @@ import org.bukkit.event.player.PlayerAnimationType
 class BoardSelectListener(
         private val boardManager: BoardManager,
         private val newGameHandler: NewGameHandler,
+        private val boardActionHandler: BoardActionHandler,
 ) : Listener {
 
     @EventHandler
@@ -39,11 +41,25 @@ class BoardSelectListener(
                 return false
             }
             newGameHandler.onPlayerRequestBoard(worldBoard, player)
+            boardActionHandler.clearAction(player)
             return true
         }
-        val chessPlayer = currentGame.players.filterIsInstance<BukkitBoardGamePlayer>().firstOrNull { it.playerId == player.uniqueId }
-        if (chessPlayer != null) {
-            chessPlayer.onPositionSelect(position, player, currentGame)
+        val boardGamePlayer = currentGame.players.filterIsInstance<BukkitBoardGamePlayer>().firstOrNull { it.playerId == player.uniqueId }
+        if (boardGamePlayer != null) {
+            val action = boardActionHandler.getAction(player)
+            if (action == null) {
+                boardGamePlayer.onPositionSelect(position, player, currentGame)
+            } else {
+                when (action) {
+                    BoardActionHandler.Action.FORFEIT -> {
+                        boardGamePlayer.initiateForfeit(player, currentGame)
+                    }
+                    BoardActionHandler.Action.REQUEST_DRAW -> {
+
+                    }
+                }
+                boardActionHandler.clearAction(player)
+            }
             return true
         }
         return false
